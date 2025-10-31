@@ -1,0 +1,90 @@
+table,column,description
+Compensation_History_cleaned,changeid,Unique ID for compensation change
+Compensation_History_cleaned,employeeid,Employee identifier
+Compensation_History_cleaned,changedate,Date of compensation change
+Compensation_History_cleaned,oldsalary,Salary before change
+Compensation_History_cleaned,newsalary,Salary after change
+Compensation_History_cleaned,reason,Reason for change (Promotion/Merit/etc.)
+Compensation_History_cleaned,salary_change,Absolute change amount
+Compensation_History_cleaned,salary_change_pct,Percentage change amount
+Compensation_History_cleaned,salary_direction,Increase/Decrease/No Change
+Compensation_History_cleaned,change_magnitude,Small/Medium/Large/Very Large by pct
+Compensation_History_cleaned,prev_change_date,Previous change date within employee
+Compensation_History_cleaned,days_since_last_change,Days since last change
+Compensation_History_cleaned,months_since_last_change,Months since last change
+Compensation_History_cleaned,change_number,Sequence number per employee
+Compensation_History_cleaned,total_changes,Total changes per employee
+Compensation_History_cleaned,first_salary,First salary recorded
+Compensation_History_cleaned,current_salary,Most recent salary
+Compensation_History_cleaned,total_salary_growth,Cumulative growth amount
+Compensation_History_cleaned,total_growth_pct,Cumulative growth %
+Compensation_History_cleaned,is_promotion,Binary flag if change due to promotion
+Compensation_History_cleaned,is_merit,Binary flag if change due to merit
+Compensation_History_cleaned,total_promotions,Cumulative promotions per employee
+Compensation_History_cleaned,total_merit_increases,Cumulative merit increases per employee
+Employee_Master_cleaned,employeeid,Employee identifier
+Employee_Master_cleaned,fullname,Employee full name
+Employee_Master_cleaned,department,Department name
+Employee_Master_cleaned,jobtitle,Job title
+Employee_Master_cleaned,email,Email address
+Employee_Master_cleaned,gender,Gender
+Employee_Master_cleaned,hiredate,Hire date
+Employee_Master_cleaned,terminationdate,Termination date (if any)
+Employee_Master_cleaned,salary,Base salary
+Employee_Master_cleaned,managerid,Manager identifier
+Employee_Master_cleaned,performancerating,Performance rating
+Employee_Master_cleaned,status,Employment status
+Employee_Master_cleaned,tenure_days,Days at company
+Employee_Master_cleaned,tenure_years,Years at company
+Employee_Master_cleaned,tenure_band,Tenure band category
+Employee_Master_cleaned,salary_band,Salary band category
+Employee_Master_cleaned,dept_avg_salary,Dept average salary
+Employee_Master_cleaned,job_avg_salary,Job title average salary
+Employee_Master_cleaned,salary_vs_dept_avg,% difference from dept average
+Employee_Master_cleaned,salary_vs_job_avg,% difference from job average
+Employee_Master_cleaned,performance_category,Performance category label
+Employee_Master_cleaned,department_size,Headcount in department
+Employee_Master_cleaned,manager_span_of_control,Direct reports per manager
+Employee_Master_cleaned,is_active,Binary active flag
+Employee_Master_cleaned,is_terminated,Binary terminated flag
+Employee_Master_cleaned,has_manager,Binary manager flag
+Employee_Master_cleaned,has_performance_rating,Binary performance rating flag
+Employee_Master_cleaned,seniority_level,Seniority derived from tenure
+Employee_Master_cleaned,tenure_at_termination,Tenure at termination (years)
+Employee_Master_cleaned,early_attrition,Binary early attrition flag
+Headcount_cleaned,recordid,Record identifier
+Headcount_cleaned,monthend,Month end date
+Headcount_cleaned,department,Department name
+Headcount_cleaned,headcount,Total headcount
+Headcount_cleaned,hires,Hires that month
+Headcount_cleaned,terminations,Terminations that month
+Headcount_cleaned,attritionrate,Attrition rate (if present)
+Headcount_cleaned,net_change,Hires - Terminations
+Headcount_cleaned,growth_rate,Growth rate
+Headcount_cleaned,turnover_rate,Turnover rate
+Headcount_cleaned,hire_rate,Hire rate
+Leave_Attendance_cleaned,leaveid,Leave record ID
+Leave_Attendance_cleaned,employeeid,Employee identifier
+Leave_Attendance_cleaned,leavetype,Type of leave
+Leave_Attendance_cleaned,startdate,Start date
+Leave_Attendance_cleaned,enddate,End date
+Leave_Attendance_cleaned,days,Leave days
+Leave_Attendance_cleaned,leave_duration_category,Duration category label
+Leave_Attendance_cleaned,is_sick_leave,Binary sick leave flag
+Leave_Attendance_cleaned,is_vacation,Binary vacation flag
+Leave_Attendance_cleaned,is_personal,Binary personal leave flag
+Leave_Attendance_cleaned,is_maternity_paternity,Binary maternity/paternity flag
+Leave_Attendance_cleaned,total_leave_days,Total leave days per employee
+Leave_Attendance_cleaned,leave_count,Number of leaves per employee
+Leave_Attendance_cleaned,avg_leave_duration,Average leave duration per employee
+Leave_Attendance_cleaned,season,Season label
+Recruitment_Funnel_cleaned,candidateid,Candidate identifier
+Recruitment_Funnel_cleaned,positionid,Position identifier
+Recruitment_Funnel_cleaned,jobtitle,Job title
+Recruitment_Funnel_cleaned,applicationdate,Application date
+Recruitment_Funnel_cleaned,source,Candidate source
+Recruitment_Funnel_cleaned,stage,Pipeline stage
+Recruitment_Funnel_cleaned,dateatstage,Date of current stage
+Recruitment_Funnel_cleaned,stage_number,Numeric stage order
+Recruitment_Funnel_cleaned,is_hired,Binary hired flag
+Recruitment_Funnel_cleaned,days_in_process,Days from application to stage date

@@ -1,0 +1,222 @@
+-- ========================================
+-- HR DASHBOARD - FINAL DAX MEASURES
+-- ========================================
+
+-- HEADCOUNT MEASURES
+-- ========================================
+
+Headcount As Of Last Date =
+VAR _LastDate = CALCULATE(MAX(headcount_cleaned[MonthEnd]), ALL(headcount_cleaned))
+RETURN
+CALCULATE(
+  SUM(headcount_cleaned[headcount]),
+  FILTER(
+    ALL(headcount_cleaned),
+    headcount_cleaned[MonthEnd] = _LastDate
+      && headcount_cleaned[department] IN {
+        "Finance",
+        "Human Resources",
+        "It Support",
+        "Logistics",
+        "Marketing",
+        "Production",
+        "Quality Control",
+        "Research & Development",
+        "Sales"
+      }
+  )
+)
+
+Total Headcount = SUM(Headcount_cleaned[Headcount])
+
+Headcount (Company Snapshot) =
+VAR m = MAX(Headcount_cleaned[MonthEnd])
+RETURN
+IF(
+    ISBLANK(m),
+    BLANK(),
+    SUMX(
+        VALUES(Headcount_cleaned[Department]),
+        CALCULATE(
+            MAX(Headcount_cleaned[Headcount])
+        )
+    )
+)
+
+Hires = SUM(Headcount_cleaned[Hires])
+
+Terminations = SUM(Headcount_cleaned[Terminations])
+
+Turnover Rate % = DIVIDE([Terminations], [Headcount As Of Last Date])
+
+Average Attrition Rate % =
+DIVIDE(
+    SUM(headcount_cleaned[Terminations]),
+    AVERAGEX(
+        FILTER(
+            headcount_cleaned,
+            headcount_cleaned[MonthEnd] >= DATE(2018,1,30)
+            && headcount_cleaned[MonthEnd] <= DATE(2025,10,30)
+        ),
+        headcount_cleaned[Headcount]
+    ),
+    0
+) / 100
+
+Monthly Termination Rate % =
+VAR CurrentMonth = MAX(headcount_cleaned[monthend])
+VAR TerminationsThisMonth =
+    CALCULATE(
+        SUM(headcount_cleaned[terminations]),
+        headcount_cleaned[monthend] = CurrentMonth
+    )
+VAR HeadcountThisMonth =
+    CALCULATE(
+        SUM(headcount_cleaned[headcount]),
+        headcount_cleaned[monthend] = CurrentMonth
+    )
+RETURN
+DIVIDE(TerminationsThisMonth, HeadcountThisMonth, 0)
+
+-- COMPENSATION MEASURES
+-- ========================================
+
+Avg Salary Change % = AVERAGE(Compensation_History_cleaned[salary_change_pct]) / 100
+
+Promotion Count =
+CALCULATE(
+    COUNTROWS(Compensation_History_cleaned),
+    FILTER(
+        Compensation_History_cleaned,
+        VAR r = LOWER(TRIM(Compensation_History_cleaned[reason]))
+        RETURN NOT ISBLANK(r) &&
+               ( CONTAINSSTRING(r, "promot")
+                 || CONTAINSSTRING(r, "title change")
+                 || CONTAINSSTRING(r, "grade change") )
+    )
+)
+
+Merit Count =
+CALCULATE(
+    COUNTROWS(Compensation_History_cleaned),
+    FILTER(
+        Compensation_History_cleaned,
+        VAR r = LOWER(TRIM(Compensation_History_cleaned[reason]))
+        RETURN NOT ISBLANK(r) &&
+               ( CONTAINSSTRING(r, "merit")
+                 || CONTAINSSTRING(r, "performance")
+                 || CONTAINSSTRING(r, "annual review")
+                 || CONTAINSSTRING(r, "cost of living")
+                 || CONTAINSSTRING(r, "cola") )
+    )
+)
+
+Promotion Rate =
+VAR Promos = [Promotion Count]
+VAR EmpCount = DISTINCTCOUNT(Employee_Master_cleaned[EmployeeID])
+RETURN DIVIDE(Promos, EmpCount, 0)
+
+-- EMPLOYEE / ATTRITION MEASURES
+-- ========================================
+
+Active Employees = CALCULATE(DISTINCTCOUNT(Employee_Master_cleaned[EmployeeID]), Employee_Master_cleaned[is_active] = 1)
+
+Early Attrition Count = SUM(Employee_Master_cleaned[early_attrition])
+
+Average Tenure (Years) =
+CALCULATE(
+    AVERAGE(Employee_Master_cleaned[tenure_years]),
+    FILTER(
+        Employee_Master_cleaned,
+        Employee_Master_cleaned[HireDate] <= MAX(headcount_cleaned[MonthEnd])
+            && (
+                ISBLANK(Employee_Master_cleaned[TerminationDate])
+                || Employee_Master_cleaned[TerminationDate] > MAX(headcount_cleaned[MonthEnd])
+            )
+    )
+)
+
+Average Tenure PrevMonth =
+VAR PrevMonth =
+    CALCULATE(
+        MAX(headcount_cleaned[MonthEnd]),
+        DATEADD(headcount_cleaned[MonthEnd], -1, MONTH)
+    )
+RETURN
+CALCULATE(
+    AVERAGE(Employee_Master_cleaned[tenure_years]),
+    FILTER(
+        Employee_Master_cleaned,
+        Employee_Master_cleaned[HireDate] <= PrevMonth
+            && (
+                ISBLANK(Employee_Master_cleaned[TerminationDate])
+                || Employee_Master_cleaned[TerminationDate] > PrevMonth
+            )
+    )
+)
+
+Average Tenure MoM Change = [Average Tenure (Years)] - [Average Tenure PrevMonth]
+
+Average Performance = AVERAGE(Employee_Master_cleaned[performancerating])
+
+High Performers % =
+VAR HighCount = CALCULATE(COUNTROWS(Employee_Master_cleaned), Employee_Master_cleaned[PerformanceRating] >= 4)
+VAR Tot = DISTINCTCOUNT(Employee_Master_cleaned[EmployeeID])
+RETURN DIVIDE(HighCount, Tot, 0)
+
+-- LEAVE MEASURES
+-- ========================================
+
+Total Leave Days = SUM(Leave_Attendance_cleaned[days])
+
+Avg Leave Duration = AVERAGE(Leave_Attendance_cleaned[days])
+
+-- RECRUITMENT MEASURES
+-- ========================================
+
+Applications = DISTINCTCOUNT(Recruitment_Funnel_cleaned[CandidateID])
+
+Hires (Req) = SUM(Recruitment_Funnel_cleaned[is_hired])
+
+Hire Rate % = DIVIDE([Hires (Req)], [Applications])
+
+Avg Days in Process = AVERAGE(Recruitment_Funnel_cleaned[days_in_process])
+
+Open Positions (Filtered) =
+COUNTROWS(
+    FILTER(
+        VALUES(Recruitment_Funnel_cleaned[positionid]),
+        MAX(Recruitment_Funnel_cleaned[hires_per_position]) 
+        < MAX(Recruitment_Funnel_cleaned[applications_per_position])
+    )
+)
+
+Open Positions Still Hiring =
+COUNTROWS(
+    FILTER(
+        VALUES(Recruitment_Funnel_cleaned[positionid]),
+        MAX(Recruitment_Funnel_cleaned[applications_per_position]) >
+        CALCULATE(
+            COUNTROWS(Recruitment_Funnel_cleaned),
+            Recruitment_Funnel_cleaned[is_hired] = 1,
+            Recruitment_Funnel_cleaned[positionid] = EARLIER(Recruitment_Funnel_cleaned[positionid])
+        )
+    )
+)
+
+Best Source =
+VAR LinkedIn = SUM(Recruitment_Funnel_cleaned[is_linkedin])
+VAR Indeed = SUM(Recruitment_Funnel_cleaned[is_indeed])
+VAR Referral = SUM(Recruitment_Funnel_cleaned[is_referral])
+VAR Website = SUM(Recruitment_Funnel_cleaned[is_company_website])
+VAR JobFair = SUM(Recruitment_Funnel_cleaned[is_job_fair])
+
+RETURN
+SWITCH(
+    TRUE(),
+    LinkedIn >= Indeed && LinkedIn >= Referral && LinkedIn >= Website && LinkedIn >= JobFair, "LinkedIn",
+    Indeed >= Referral && Indeed >= Website && Indeed >= JobFair, "Indeed",
+    Referral >= Website && Referral >= JobFair, "Referral",
+    Website >= JobFair, "Company Website",
+    "Job Fair"
+)
